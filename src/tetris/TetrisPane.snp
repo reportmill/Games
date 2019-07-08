@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RowView Padding="20" GrowWidth="true" Spacing="10">
+  <ColView PrefWidth="200" PrefHeight="400" Padding="4" GrowHeight="true" Spacing="4">
+    <color value="#ffffff" />
+  </ColView>
+  <ColView MinWidth="200" Padding="4" GrowHeight="true" Spacing="4">
+    <Label LeanX="CENTER" text="Tetris">
+      <font name="Arial" size="50" />
+    </Label>
+    <RowView PrefHeight="30" Padding="4" GrowWidth="true" Spacing="4" />
+    <RowView MinWidth="0" Padding="9" GrowWidth="true" Spacing="4">
+      <Button Name="RotateButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="CENTER" text="Rotate" />
+    </RowView>
+    <RowView MinWidth="0" Padding="9" GrowWidth="true" Spacing="4">
+      <Button Name="LeftButton" PrefWidth="60" PrefHeight="30" Padding="2" text="Left" />
+      <Button Name="RightButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="RIGHT" text="Right" />
+    </RowView>
+    <RowView MinWidth="0" Padding="9" GrowWidth="true" Spacing="4">
+      <Button Name="DropButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="CENTER" text="Drop" />
+    </RowView>
+    <RowView MinWidth="0" Padding="9" GrowWidth="true" LeanY="BOTTOM" Spacing="4">
+      <Button Name="PauseButton" PrefWidth="60" PrefHeight="30" Padding="2" text="Pause" />
+      <Button Name="RestartButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="RIGHT" text="Restart" />
+    </RowView>
+  </ColView>
+</RowView>
