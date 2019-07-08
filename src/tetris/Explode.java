@@ -33,7 +33,7 @@ public static void explode(View aView, int aStart)
     // Hide view and make visible after delay
     aView.setOpacity(0);
     //aView.addPropChangeListener(PropChangeListener.getOneShot(pc -> explodeFinished(aView, pieces)));
-    aView.getAnim(aStart+3000).setOnFinish(a -> explodeFinished(aView, pieces));
+    aView.getAnim(aStart+2000).setOnFinish(a -> explodeFinished(aView, pieces));
     aView.getAnim(0).play();
 }
 
@@ -66,7 +66,7 @@ public static View explodePiece(View aView, int aRow, int aCol, int aStart)
     
     // Create random rotation and duration of piece
     double rot = _rand.nextDouble()*720 - 360;
-    int time = 2000 + _rand.nextInt(1000);
+    int time = 1000 + _rand.nextInt(1000);
     
     // Configure animation for piece and play
     ViewAnim anim = iview.getAnim(aStart).getAnim(aStart+time);

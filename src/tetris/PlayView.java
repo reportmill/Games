@@ -165,12 +165,13 @@ void removeRow(StackRow aRow)
     int ind = _rows.indexOf(aRow);
     Explode.explode(aRow, 0);
     _rows.remove(aRow);
+    removeChild(aRow);
     
     // Iterate over rows above and configure to move down
     for(int i=ind;i<_rows.size();i++) { StackRow row = _rows.get(i);
         row.setY(getHeight() - (i+1)*TILE_SIZE);
         row.setTransY(row.getTransY() - TILE_SIZE);
-        row.getAnim(500).setTransY(0).play();
+        row.getAnimCleared(500).setTransY(0).play();
     }
 }
 

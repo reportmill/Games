@@ -58,7 +58,7 @@ public boolean intersectsBlock(Block aBlock)
     
     // Iterate over block tiles and see if any intersect row tiles
     for(int i=0;i<aBlock.getTileCount();i++) { Rect brect = aBlock.getTileRectInParent(i);
-        Rect brect2 = brect.getInsetRect(1, .1);
+        Rect brect2 = brect.getInsetRect(2, .2);
         for(Rect rrect : getTileRectsInParent())
             if(rrect.intersects(brect2))
                 return true;
