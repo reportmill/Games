@@ -75,7 +75,6 @@ public void rotateRight()
 {
     _pattern = _pattern.getRotateRight();
     setSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
-    System.out.println("Size: " + getSize());
 }
 
 /**

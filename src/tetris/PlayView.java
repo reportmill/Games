@@ -38,7 +38,7 @@ public PlayView()
     setFocusable(true);
     setFill(Color.WHITE);
     setBorder(Color.BLACK, 2);
-    setPrefSize(GRID_WIDTH*Block.TILE_SIZE + BORDER_WIDTH*2, GRID_HEIGHT*Block.TILE_SIZE + BORDER_WIDTH*2);
+    setPrefSize(GRID_WIDTH*TILE_SIZE + BORDER_WIDTH*2, GRID_HEIGHT*TILE_SIZE + BORDER_WIDTH*2);
     enableEvents(KeyPress);
 }
 
@@ -72,7 +72,7 @@ public void pauseGame()
 public void addPiece()
 {
     _block = new Block();
-    double x = (getWidth() - _block.getWidth())/2; x = MathUtils.round(x, Block.TILE_SIZE) + BORDER_WIDTH;
+    double x = (getWidth() - _block.getWidth())/2; x = MathUtils.round(x, TILE_SIZE) + BORDER_WIDTH;
     double y = BORDER_WIDTH;
     _block.setXY(x, y);
     addChild(_block);
@@ -93,19 +93,19 @@ void timerFired()
     _block.setY(_block.getY() + dy);
     
     // If block stopped, 
-    if(isBlockStopped())
+    if(intersectsBlock())
         blockDidHit();
 }
 
 /**
  * Returns whether block has hit something.
  */
-boolean isBlockStopped()
+boolean intersectsBlock()
 {
     double blockBtm = _block.getMaxY();
     for(int i=_rows.size()-1;i>=0;i--) { StackRow row = _rows.get(i);
         if(MathUtils.lt(blockBtm, row.getY())) return false;
-        if(row.intersects(_block))
+        if(row.intersectsBlock(_block))
             return true;
     }
     
@@ -120,20 +120,14 @@ boolean isBlockStopped()
 void blockDidHit()
 {
     // Back block up
-    while(isBlockStopped() && _block.getY()>BORDER_WIDTH)
+    while(intersectsBlock() && _block.getY()>BORDER_WIDTH)
         _block.setY(_block.getY()-1);
     
-    if(getTopRow()!=null && MathUtils.gt(_block.getMaxY(), getTopRow().getY())) {
-        System.out.println("BlockDidHit: " + fmt(_block.getMaxY()) + "  " + getTopRow().getY());
-        boolean v = isBlockStopped();
-        isBlockStopped();
-    }
-        
     // Add rows to accommodate piece
     addRows(); if(_gameOver) return;
     addBlockToRows();
     
-    // 
+    // Add new piece
     addPiece();
 }
 
@@ -163,6 +157,24 @@ void addRow()
 }
 
 /**
+ * Removes row (with explosion) and moves rows above down.
+ */
+void removeRow(StackRow aRow)
+{
+    // Cache row index, explode row and remove from Rows list
+    int ind = _rows.indexOf(aRow);
+    Explode.explode(aRow, 0);
+    _rows.remove(aRow);
+    
+    // Iterate over rows above and configure to move down
+    for(int i=ind;i<_rows.size();i++) { StackRow row = _rows.get(i);
+        row.setY(getHeight() - (i+1)*TILE_SIZE);
+        row.setTransY(row.getTransY() - TILE_SIZE);
+        row.getAnim(500).setTransY(0).play();
+    }
+}
+
+/**
  * Adds the current block to rows.
  */
 void addBlockToRows()
@@ -183,20 +195,7 @@ void addBlockToRows()
     // Remove full rows
     for(int i=_rows.size()-1;i>=0;i--) { StackRow row = _rows.get(i);
         if(row.isFull())
-            explodeRow(row);
-    }
-}
-
-/**
- * Explodes row.
- */
-void explodeRow(StackRow aRow)
-{
-    int ind = _rows.indexOf(aRow);
-    Explode.explode(aRow, 0);
-    _rows.remove(aRow);
-    for(int i=ind;i<_rows.size();i++) { StackRow row = _rows.get(i);
-        row.getAnim(500).setY(getHeight() - (i+1)*TILE_SIZE).play();
+            removeRow(row);
     }
 }
 
@@ -246,9 +245,12 @@ protected void processEvent(ViewEvent anEvent)
  */
 public void moveLeft()
 {
-    if(_block.getAnim(0).isPlaying()) _block.getAnim(0).finish();
     if(_block.getX()<=BORDER_WIDTH) return;
-    _block.getAnimCleared(300).setX(_block.getX() - Block.TILE_SIZE).play();
+    
+    _block.setX(_block.getX() - TILE_SIZE);
+    
+    _block.setTransX(TILE_SIZE);
+    _block.getAnimCleared(300).setTransX(0).play();
 }
 
 /**
@@ -256,9 +258,11 @@ public void moveLeft()
  */
 public void moveRight()
 {
-    if(_block.getAnim(0).isPlaying()) _block.getAnim(0).finish();
     if(_block.getMaxX()>=getWidth()-BORDER_WIDTH) return;
-    _block.getAnimCleared(300).setX(_block.getX() + Block.TILE_SIZE).play();
+    
+    _block.setX(_block.getX() + TILE_SIZE);
+    _block.setTransX(-TILE_SIZE);
+    _block.getAnimCleared(300).setTransX(0).play();
 }
 
 /**
@@ -271,6 +275,7 @@ public void dropBlock()  { _dropFast = true; }
  */
 public void rotateBlock()  { _block.rotateRight(); }
 
+// For debug
 String fmt(double aVal)  { return snap.util.StringUtils.formatNum("#.#", aVal); }
 
 }

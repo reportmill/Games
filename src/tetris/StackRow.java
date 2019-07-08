@@ -28,7 +28,6 @@ public class StackRow extends View {
  */
 public StackRow()
 {
-    
     setSize(PlayView.GRID_WIDTH*TILE_SIZE, TILE_SIZE);
     setEffect(new ShadowEffect());
 }
@@ -52,17 +51,16 @@ public Rect[] getTileRectsInParent()
 /**
  * Returns whether block intersects row.
  */
-public boolean intersects(Block aBlock)
+public boolean intersectsBlock(Block aBlock)
 {
     // If block above row, return false
     if(MathUtils.lt(aBlock.getMaxY(), getY())) return false;
     
     // Iterate over block tiles and see if any intersect row tiles
     for(int i=0;i<aBlock.getTileCount();i++) { Rect brect = aBlock.getTileRectInParent(i);
-        double x = brect.getMidX();
-        double y = brect.getMidY();
+        Rect brect2 = brect.getInsetRect(1, .1);
         for(Rect rrect : getTileRectsInParent())
-            if(brect.intersects(rrect)) //if(rrect.contains(x,y))
+            if(rrect.intersects(brect2))
                 return true;
     }
     
