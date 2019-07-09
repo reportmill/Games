@@ -33,8 +33,7 @@ public static void explode(View aView, int aStart)
     // Hide view and make visible after delay
     aView.setOpacity(0);
     //aView.addPropChangeListener(PropChangeListener.getOneShot(pc -> explodeFinished(aView, pieces)));
-    aView.getAnim(aStart+2000).setOnFinish(a -> explodeFinished(aView, pieces));
-    aView.getAnim(0).play();
+    ViewUtils.runDelayed(() -> explodeFinished(aView, pieces), aStart+2000, true);
 }
 
 public static View explodePiece(View aView, int aRow, int aCol, int aStart)

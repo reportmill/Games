@@ -12,6 +12,9 @@ public class PlayView extends ParentView {
     // The current block
     Block       _block;
     
+    // The next block
+    Block       _nextBlock;
+    
     // The timer
     ViewTimer   _timer = new ViewTimer(25, t -> timerFired());
     
@@ -29,6 +32,8 @@ public class PlayView extends ParentView {
     static int GRID_WIDTH = 10, GRID_HEIGHT = 20;
     static int BORDER_WIDTH = 2;
     
+    // Constants
+    static final String NextBlock_Prop = "NextBlock";
 
 /**
  * Creates a PlayView.
@@ -40,12 +45,13 @@ public PlayView()
     setBorder(Color.BLACK, 2);
     setPrefSize(GRID_WIDTH*TILE_SIZE + BORDER_WIDTH*2, GRID_HEIGHT*TILE_SIZE + BORDER_WIDTH*2);
     enableEvents(KeyPress);
+    getNextBlock(true);
 }
 
 /**
  * Starts play.
  */
-public void playGame()
+public void startGame()
 {
     // Reset state
     _rows.clear(); removeChildren(); _gameOver = false;
@@ -71,13 +77,26 @@ public void pauseGame()
  */
 public void addPiece()
 {
-    _block = new Block();
+    _block = getNextBlock(true);
     double x = (getWidth() - _block.getWidth())/2; x = MathUtils.round(x, TILE_SIZE) + BORDER_WIDTH;
     double y = BORDER_WIDTH;
     _block.setXY(x, y);
     addChild(_block);
     _dropFast = false;
     _block.setEffect(new ShadowEffect());
+}
+
+/**
+ * Returns the next block with option to reset.
+ */
+public Block getNextBlock(boolean doReset)
+{
+    Block block = _nextBlock;
+    if(doReset) {
+        _nextBlock = new Block();
+        firePropChange(NextBlock_Prop, block, _nextBlock);
+    }
+    return block;
 }
 
 /**
@@ -145,11 +164,13 @@ void addRows()
  */
 void addRow()
 {
+    // If all rows full, it's GameOver
     if(_rows.size()>=GRID_HEIGHT-1) {
         gameOver(); return; }
     
-    StackRow topRow = getTopRow();
+    // Create new row, position above TopRow and add
     StackRow newRow = new StackRow();
+    StackRow topRow = getTopRow();
     double y = topRow!=null? topRow.getY() : (getHeight() - BORDER_WIDTH); y -= TILE_SIZE;
     newRow.setXY(BORDER_WIDTH, y);
     newRow._rowNum = _rows.size();
@@ -227,6 +248,13 @@ void gameOver()
         Explode.explode(row, i*150); }
 
     addBlockToRows();
+    
+    Label label = new Label("Game Over"); label.setFont(new Font("Arial Bold", 36)); label.setTextFill(Color.MAGENTA);
+    label.setSize(label.getPrefSize()); label.setScale(.1); label.setOpacity(0);
+    addChild(label);
+    label.setManaged(false); label.setLean(Pos.CENTER);
+    int time = _rows.size()*150;
+    label.getAnim(time).getAnim(time+1200).setScale(1).setOpacity(1).setRotate(360).play();
 }
 
 /**

@@ -38,6 +38,7 @@ public Block()
     int patInd = (int)Math.floor(Math.random()*PIECE_COUNT);
     _pattern = ALL[patInd];
     setSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
+    setPrefSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
 }
 
 /**
@@ -75,6 +76,7 @@ public void rotateRight()
 {
     _pattern = _pattern.getRotateRight();
     setSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
+    setPrefSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
 }
 
 /**
