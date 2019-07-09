@@ -29,7 +29,7 @@ public class StackRow extends View {
 public StackRow()
 {
     setSize(PlayView.GRID_WIDTH*TILE_SIZE, TILE_SIZE);
-    setEffect(new ShadowEffect());
+    setEffect(Block.BLOCK_EFFECT);
 }
 
 /**

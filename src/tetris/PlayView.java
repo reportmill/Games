@@ -83,7 +83,6 @@ public void addPiece()
     _block.setXY(x, y);
     addChild(_block);
     _dropFast = false;
-    _block.setEffect(new ShadowEffect());
 }
 
 /**

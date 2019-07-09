@@ -14,6 +14,7 @@ public class Block extends View {
     static int TILE_SIZE = 20;
     static int PIECE_COUNT = 7;
     static Pattern SQUARE, STICK, BOAT, L1, L2, S1, S2, ALL[];
+    static Effect BLOCK_EFFECT = new ShadowEffect(8,Color.BLACK,0,0);
 
 /**
  * Creates Patterns.
@@ -39,6 +40,7 @@ public Block()
     _pattern = ALL[patInd];
     setSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
     setPrefSize(_pattern.colCount*TILE_SIZE, _pattern.rowCount*TILE_SIZE);
+    setEffect(BLOCK_EFFECT);
 }
 
 /**
