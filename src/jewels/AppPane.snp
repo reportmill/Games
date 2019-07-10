@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RowView Padding="20" GrowWidth="true" Spacing="10">
+  <ColView MinWidth="200" Padding="4" GrowHeight="true" Spacing="4">
+    <Label LeanX="CENTER" text="Jewels">
+      <font name="Arial" size="50" />
+    </Label>
+    <BoxView Name="NextBlockBox" PrefWidth="100" PrefHeight="100" Padding="4" GrowHeight="true" LeanX="CENTER" Spacing="4">
+      <BevelBorder />
+    </BoxView>
+    <ColView Padding="15" LeanX="CENTER" LeanY="CENTER" Spacing="4">
+      <BevelBorder />
+      <Label text="Left  -  left arrow" />
+      <Label text="Right  -  right arrow" />
+      <Label text="Rotate  -  space" />
+      <Label text="Drop  -  down arrow" />
+    </ColView>
+    <RowView MinWidth="0" Padding="9" GrowWidth="true" LeanY="BOTTOM" Spacing="4">
+      <Button Name="PauseButton" PrefWidth="60" PrefHeight="30" Padding="2" text="Pause" />
+      <Button Name="RestartButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="RIGHT" text="Restart" />
+    </RowView>
+  </ColView>
+  <ColView PrefWidth="512" PrefHeight="512" Padding="4" GrowHeight="true" Spacing="4">
+    <color value="#ffffff" />
+  </ColView>
+</RowView>
