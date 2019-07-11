@@ -3,7 +3,6 @@ import java.util.*;
 import snap.gfx.*;
 import snap.util.MathUtils;
 import snap.view.*;
-import tetris.Block.Pattern;
 
 /**
  * A class to represent row of block tiles at bottom of PlayView.
@@ -11,7 +10,7 @@ import tetris.Block.Pattern;
 public class StackRow extends View {
 
     // The array of filled tiles
-    Pattern           _cols[] = new Block.Pattern[GRID_WIDTH];
+    Pattern           _cols[] = new Pattern[GRID_WIDTH];
     
     // The array of tile rects
     Rect              _tileRects[];
@@ -99,7 +98,7 @@ public boolean isFull()
 protected void paintFront(Painter aPntr)
 {
     for(int i=0;i<_cols.length;i++) {
-        Block.Pattern pat = _cols[i]; if(pat==null) continue;
+        Pattern pat = _cols[i]; if(pat==null) continue;
         double x = i*TILE_SIZE;
         aPntr.drawImage(pat.image, x, 0);
     }
