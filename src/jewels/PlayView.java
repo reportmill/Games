@@ -30,13 +30,11 @@ public class PlayView extends ParentView {
 public PlayView()
 {
     // Create background texture
-    Image img = Image.get(getClass(), "pkg.images/Cloth.jpg");
-    Painter pntr = img.getPainter(); pntr.setColor(new Color("#44998833"));
-    pntr.drawRect(.5,.5,img.getWidth()-1, img.getHeight()-1);
-    ImagePaint paint = new ImagePaint(img, BORDER_SIZE, BORDER_SIZE, 64, 64, false);
+    Image img = Image.get(PlayView.class, "pkg.images/Cloth.jpg");
+    img.addLoadListener(pc -> backImageLoaded(img));
     
     // Set PlayView fill, border, PrefSize
-    setFill(paint); setBorder(Color.BLACK, 2);
+    setBorder(Color.BLACK, 2);
     setPrefSize(GRID_WIDTH*TILE_SIZE + BORDER_SIZE*2, GRID_HEIGHT*TILE_SIZE + BORDER_SIZE*2);
     setClipToBounds(true);
     enableEvents(MousePress, MouseDrag);
@@ -53,6 +51,18 @@ public void startGame()
     // Clear/reload gems
     clearGems();
     reloadGems();
+}
+
+/**
+ * Called when background texture image is loaded.
+ */
+void backImageLoaded(Image anImage)
+{
+    anImage.getPainter();
+    Painter pntr = anImage.getPainter(); pntr.setColor(new Color("#44998833"));
+    pntr.drawRect(.5,.5, anImage.getWidth()-1, anImage.getHeight()-1);
+    ImagePaint paint = new ImagePaint(anImage, BORDER_SIZE, BORDER_SIZE, 64, 64, false);
+    setFill(paint);
 }
 
 /**
