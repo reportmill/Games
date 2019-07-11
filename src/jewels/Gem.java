@@ -10,6 +10,9 @@ public class Gem extends ImageView {
     // The Gem id
     int     _gid;
     
+    // The gem col/row
+    int     _col, _row;
+    
     // Constants
     static int TILE_SIZE = PlayView.TILE_SIZE;
     
@@ -33,5 +36,20 @@ public Gem()
     setSize(TILE_SIZE,TILE_SIZE);
     setPrefSize(TILE_SIZE,TILE_SIZE);
 }
+
+/**
+ * Returns the column of gem.
+ */
+public int getCol()  { return _col; }
+
+/**
+ * Returns the row of gem.
+ */
+public int getRow()  { return _row; }
+
+/**
+ * Sets the gem col/row.
+ */
+public void setColRow(int aCol, int aRow)  { _col = aCol; _row = aRow; }
 
 }
