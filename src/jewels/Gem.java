@@ -3,9 +3,9 @@ import snap.gfx.*;
 import snap.view.*;
 
 /**
- * A view class to display a jewel.
+ * A view class to display a gem.
  */
-public class Jewel extends ImageView {
+public class Gem extends ImageView {
 
     // The Gem id
     int     _gid;
@@ -26,7 +26,7 @@ public class Jewel extends ImageView {
 /**
  * Create new Gem.
  */
-public Jewel()
+public Gem()
 {
     _gid = (int)Math.floor(Math.random()*7);
     setImage(ALL[_gid]);

@@ -33,6 +33,16 @@ protected void initUI()
 }
 
 /**
+ * Respond to UI.
+ */
+protected void respondUI(ViewEvent anEvent)
+{
+    // Handle PauseButton, RestartButton
+    if(anEvent.equals("PauseButton")) _playView.pauseGame();
+    if(anEvent.equals("RestartButton")) _playView.startGame();
+}
+
+/**
  * Standard main method.
  */
 public static void main(String args[])
