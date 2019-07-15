@@ -1,4 +1,5 @@
 package jewels;
+import java.util.*;
 import snap.gfx.*;
 import snap.view.*;
 
@@ -80,27 +81,6 @@ public void pauseGame()
 void timerFired()  { }
 
 /**
- * Reloads the field of gems.
- */
-void reloadGems()
-{
-    for(int j=GRID_HEIGHT-1;j>=0;j--) {
-        for(int i=0;i<GRID_WIDTH;i++) {
-            if(_gems[i][j]==null) {
-                Gem gem = getGemAboveColRow(i, j);
-                double oldY = gem.getY() - gem.getTransY();
-                Point pnt = gridToLocal(i, j); gem.setY(pnt.y);
-                double dy = gem.getY() - oldY;
-                gem.setTransY(-dy);
-                int time = (int)Math.round(dy*ROW_SPEEDS[i]/TILE_SIZE);
-                gem.getAnimCleared(time).setTransY(0).setLinear().play();
-                _gems[i][j] = gem; gem.setColRow(i,j); //setGem(gem, i, j);
-            }
-        }
-    }
-}
-
-/**
  * Returns the gem at given x/y.
  */
 Gem getGem(int aCol, int aRow)
@@ -112,13 +92,21 @@ Gem getGem(int aCol, int aRow)
 /**
  * Sets the gem at given x/y.
  */
-void setGem(Gem aGem, int aCol, int aRow)
+Gem setGem(Gem aGem, int aCol, int aRow)
 {
-    _gems[aCol][aRow] = aGem; if(aGem==null) return;
+    Gem oldGem = _gems[aCol][aRow]; _gems[aCol][aRow] = aGem;
+    
+    // Handle null
+    if(aGem==null) {
+        return oldGem;
+    }
+    
+    // Handle setting new gem
     aGem.setColRow(aCol, aRow);
     Point pnt = gridToLocal(aCol, aRow);
     aGem.setXY(pnt.x, pnt.y);
     aGem.setTransX(0); aGem.setTransY(0);
+    return oldGem;
 }
 
 /**
@@ -126,11 +114,18 @@ void setGem(Gem aGem, int aCol, int aRow)
  */
 void setGemAnimated(Gem aGem, int aCol, int aRow)
 {
-    if(aGem==null) { setGem(aGem, aCol, aRow); return; }
+    // Sets gem
+    double x0 = aGem!=null? aGem.getX() + aGem.getTransX() : 0;
+    double y0 = aGem!=null? aGem.getY() + aGem.getTransY() : 0;
+    Gem oldGem = setGem(aGem, aCol, aRow);
     
-    double x0 = aGem.getX() + aGem.getTransX();
-    double y0 = aGem.getY() + aGem.getTransY();
-    setGem(aGem, aCol, aRow);
+    // If replacing with null, animate out and remove
+    if(aGem==null) {
+        oldGem.getAnimCleared(500).setScale(.01).setOpacity(.1).setOnFinish(a -> removeChild(oldGem)).play();
+        return;
+    }
+    
+    // Animate new gem into place
     double x1 = aGem.getX() + aGem.getTransX();
     double y1 = aGem.getY() + aGem.getTransY();
     double dx = x1 - x0, dy = y1 - y0, dist = Math.max(Math.abs(dx), Math.abs(dy));
@@ -167,6 +162,27 @@ Gem getGemAboveColRow(int aX, int aY)
 }
 
 /**
+ * Reloads the field of gems.
+ */
+void reloadGems()
+{
+    for(int j=GRID_HEIGHT-1;j>=0;j--) {
+        for(int i=0;i<GRID_WIDTH;i++) {
+            if(_gems[i][j]==null) {
+                Gem gem = getGemAboveColRow(i, j);
+                double oldY = gem.getY() - gem.getTransY();
+                Point pnt = gridToLocal(i, j); gem.setY(pnt.y);
+                double dy = gem.getY() - oldY;
+                gem.setTransY(-dy);
+                int time = (int)Math.round(dy*ROW_SPEEDS[i]/TILE_SIZE);
+                gem.getAnimCleared(time).setTransY(0).setLinear().play();
+                _gems[i][j] = gem; gem.setColRow(i,j); //setGem(gem, i, j);
+            }
+        }
+    }
+}
+
+/**
  * Clears the gems.
  */
 void clearGems()
@@ -197,11 +213,62 @@ public GridXY localToGrid(double aX, double aY)
  */
 public void swapGems(Gem aGem1, Gem aGem2)
 {
+    // Swap the two gems
     int col1 = aGem1.getCol(), row1 = aGem1.getRow();
     int col2 = aGem2.getCol(), row2 = aGem2.getRow();
     setGemAnimated(aGem1, col2, row2);
     setGemAnimated(aGem2, col1, row1);
+    
+    // Check and clear matched gems
+    checkAndClearAllMatches();
 }
+
+/**
+ * Checks for matches on all gems and clears them.
+ */
+void checkAndClearAllMatches()
+{
+    for(int i=0;i<GRID_WIDTH;i++)
+        for(int j=0;j<GRID_HEIGHT;j++)
+            checkAndClearGemMatches(i, j);
+}
+
+/**
+ * Checks for matches on given gem and clears them.
+ */
+void checkAndClearGemMatches(int aCol, int aRow)
+{
+    Match m = getMatch(aCol, aRow);
+    if(m!=null) {
+        GridXY pnts[] = m.getPoints();
+        for(GridXY pnt : pnts)
+            setGemAnimated(null, pnt.x, pnt.y);
+    }
+}
+
+/**
+ * Returns any match found at given grid xy.
+ */
+public Match getMatch(int aCol, int aRow)
+{
+    Gem gem = getGem(aCol, aRow); if(gem==null) return null;
+    int gid = gem.getId();
+    int col0 = aCol, row0 = aRow, col1 = aCol, row1 = aRow;
+    
+    for(int i=aCol-1;i>=0;i--) if(getGemId(i, aRow)==gid) col0--; else break;
+    for(int i=aCol+1;i<GRID_WIDTH;i++) if(getGemId(i, aRow)==gid) col1++; else break;
+    for(int i=aRow-1;i>=0;i--) if(getGemId(aCol, i)==gid) row0--; else break;
+    for(int i=aRow+1;i<GRID_HEIGHT;i++) if(getGemId(aCol, i)==gid) row1++; else break;
+    int dx = col1 - col0; if(dx<2) col0 = col1 = aCol;
+    int dy = row1 - row0; if(dy<2) row0 = row1 = aRow;
+    if(dx<2 && dy<2) return null;
+    return new Match(aCol, aRow, col0, row0, col1, row1);
+}
+
+/**
+ * Returns whether gem at col/row matches id.
+ */
+public int getGemId(int aCol, int aRow)  { Gem g = getGem(aCol, aRow); return g!=null? g.getId() : -1; }
 
 /**
  * Handle events.
@@ -244,6 +311,29 @@ public Size getDragChange(ViewEvent anEvent)
 static class GridXY {
     public int x, y;
     public GridXY(int aX, int aY)  { x = aX; y = aY; }
+}
+
+/**
+ * A class to represent a match.
+ */
+static class Match {
+    int col, row, col0, row0, col1, row1, dx, dy;
+    
+    /** Creates a Match for given col/row and extents. */
+    public Match(int aCol, int aRow, int aCol0, int aRow0, int aCol1, int aRow1)
+    {
+        col = aCol; row = aRow; col0 = aCol0; row0 = aRow0; col1 = aCol1; row1 = aRow1;
+        dx = col1 - col0; dy = row1 - row0;
+    }
+    
+    /** Returns points that make up the match. */
+    public GridXY[] getPoints()
+    {
+        List <GridXY> pnts = new ArrayList();
+        if(dx>=2) for(int i=col0;i<=col1;i++) pnts.add(new GridXY(i, row));
+        if(dy>=2) for(int i=row0;i<=row1;i++) pnts.add(new GridXY(col, i));
+        return pnts.toArray(new GridXY[pnts.size()]);
+    }
 }
 
 }

@@ -38,6 +38,11 @@ public Gem()
 }
 
 /**
+ * Returns the gem id.
+ */
+public int getId()  { return _gid; }
+
+/**
  * Returns the column of gem.
  */
 public int getCol()  { return _col; }
