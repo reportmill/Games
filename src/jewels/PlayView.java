@@ -87,7 +87,7 @@ void setGemAnimated(Gem aGem, int aCol, int aRow, int aDelay)
     
     // If replacing with null, animate out and remove
     if(aGem==null) {
-        tetris.Explode.explode(oldGem, 0); return; }
+        tetris.Explode.explode(oldGem, aDelay); return; }
     
     // Animate new gem into place
     double x1 = aGem.getX() + aGem.getTransX();
@@ -139,7 +139,7 @@ void clearGems(int aCol0, int aRow0, int aCol1, int aRow1)
 {
     for(int i=aCol0;i<=aCol1;i++) {
         for(int j=aRow0;j<=aRow1;j++) {
-            setGemAnimated(null, i, j, 0); }
+            setGemAnimated(null, i, j, 200); }
         int delCount = aRow1 - aRow0 + 1;
         int len = aRow1 + 1;
         copyGems(i, -delCount, 0, len);
@@ -166,24 +166,23 @@ void copyGems(int aCol, int srcRow, int dstRow, int aLen)
     
     // Set gems
     for(int i=0;i<aLen;i++) { Gem gem = gems[i];
-        setGemAnimated(gem, aCol, dstRow + i, 0);
+        setGemAnimated(gem, aCol, dstRow + i, 400);
     }
 }
 
 /**
  * Handle events.
  */
-protected void processEvent(ViewEvent anEvent)
+protected void processEventTest(ViewEvent anEvent)
 {
     // Handle MouseDown
-    if(anEvent.isMousePress()) {
+    if(anEvent.isMousePress())
         _pressGem = getGemAtXY(anEvent.getX(), anEvent.getY());
-    }
 
     // Handle MouseRelease
     else if(anEvent.isMouseRelease() && _pressGem!=null) {
-        ViewEvent mouseDown = ViewUtils.getMouseDown().copyForView(this);
-        GridXY pnt0 = localToGrid(mouseDown.getX(), mouseDown.getY());
+        ViewEvent mdwn = ViewUtils.getMouseDown().copyForView(this);
+        GridXY pnt0 = localToGrid(mdwn.getX(), mdwn.getY());
         GridXY pnt1 = localToGrid(anEvent.getX(), anEvent.getY());
         int col0 = Math.min(pnt0.x, pnt1.x), row0 = Math.min(pnt0.y, pnt1.y);
         int col1 = Math.max(pnt0.x, pnt1.x), row1 = Math.max(pnt0.y, pnt1.y);
@@ -194,12 +193,11 @@ protected void processEvent(ViewEvent anEvent)
 /**
  * Handle events.
  */
-protected void processEventGame(ViewEvent anEvent)
+protected void processEvent(ViewEvent anEvent)
 {
     // Handle MouseDown
-    if(anEvent.isMousePress()) {
+    if(anEvent.isMousePress())
         _pressGem = getGemAtXY(anEvent.getX(), anEvent.getY());
-    }
 
     // Handle MouseDrag
     else if(_pressGem!=null && anEvent.isMouseDrag()) {
@@ -209,7 +207,9 @@ protected void processEventGame(ViewEvent anEvent)
             if(Math.abs(move.width)>Math.abs(move.height)) col += move.width>0? 1 : -1;
             else row += move.height>0? 1 : -1;
             Gem gem2 = getGem(col, row); if(gem2==null) return;
-            swapGems(_pressGem, gem2);
+            
+            // Swap gems
+            swapGems(_pressGem, gem2, false);
             _pressGem = null;
         }
     }
@@ -218,7 +218,7 @@ protected void processEventGame(ViewEvent anEvent)
 /**
  * Swaps two gems.
  */
-public void swapGems(Gem aGem1, Gem aGem2)
+public void swapGems(Gem aGem1, Gem aGem2, boolean isSwapBack)
 {
     // Swap the two gems
     int col1 = aGem1.getCol(), row1 = aGem1.getRow();
@@ -226,7 +226,22 @@ public void swapGems(Gem aGem1, Gem aGem2)
     setGemAnimated(aGem1, col2, row2, 0);
     setGemAnimated(aGem2, col1, row1, 0);
     
-    // Check and clear matched gems
+    // If original swap, register for swap done
+    if(!isSwapBack)
+        ViewUtils.runDelayed(() -> swapDone(aGem1, aGem2), GEM_SPEED + 100, true);
+}
+
+/**
+ * Called when a swap is done.
+ */
+void swapDone(Gem aGem1, Gem aGem2)
+{
+    Match m1 = getMatch(aGem1.getCol(), aGem1.getRow());
+    Match m2 = getMatch(aGem2.getCol(), aGem2.getRow());
+    if(m1==null && m2==null) {
+        swapGems(aGem1, aGem2, true); return; }
+
+    // Check and clear all matches
     checkAndClearAllMatches();
 }
 
@@ -245,9 +260,14 @@ void checkAndClearAllMatches()
  */
 void checkAndClearGemMatches(int aCol, int aRow)
 {
-    Match m = getMatch(aCol, aRow);
-    if(m!=null)
-        clearMatch(m);
+    // Get match at col/row (just return if null)
+    Match m = getMatch(aCol, aRow); if(m==null) return;
+    
+    // Clear gems for horizontal/vertical matches
+    if(m.dx>=2)
+        clearGems(m.col0, m.row, m.col1, m.row);
+    if(m.dy>=2)
+        clearGems(m.col, m.row0, m.col, m.row1);
 }
 
 /**
@@ -270,16 +290,6 @@ public Match getMatch(int aCol, int aRow)
     int dy = row1 - row0; if(dy<2) row0 = row1 = aRow;
     if(dx<2 && dy<2) return null;
     return new Match(aCol, aRow, col0, row0, col1, row1);
-}
-
-/**
- * Clears a given match.
- */
-void clearMatch(Match aMatch)
-{
-    GridXY pnts[] = aMatch.getPoints();
-    for(GridXY pnt : pnts)
-        setGemAnimated(null, pnt.x, pnt.y, 0);
 }
 
 /**
