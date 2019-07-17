@@ -130,7 +130,7 @@ void reloadGems()
     for(int i=0;i<GRID_WIDTH;i++) for(int j=0;j<GRID_HEIGHT;j++) _gems[i][j] = null;
     clearGems(0, 0, GRID_WIDTH-1, GRID_HEIGHT-1);
     
-    checkAndClearMatches();
+    checkAndClearAllMatchesLater(GEM_SPEED*(GRID_HEIGHT+2));
 }
 
 /**
@@ -246,15 +246,15 @@ void swapDone(Gem aGem1, Gem aGem2)
     if(m2!=null) clearMatch(m2);
 
     // Check and clear all matches
-    checkAndClearAllMatchesLater();
+    checkAndClearAllMatchesLater(300);
 }
 
 /**
  * Checks for matches on all gems and clears them.
  */
-void checkAndClearAllMatchesLater()
+void checkAndClearAllMatchesLater(int aDelay)
 {
-    ViewUtils.runDelayed(() -> checkAndClearMatches(), 300, true);
+    ViewUtils.runDelayed(() -> checkAndClearMatches(), aDelay, true);
 }
 
 /**
@@ -267,7 +267,7 @@ void checkAndClearMatches()
         for(int j=0;j<GRID_HEIGHT;j++) {
             boolean found = checkAndClearMatchAt(i, j);
             if(found) {
-                checkAndClearAllMatchesLater(); return; }
+                checkAndClearAllMatchesLater(300); return; }
         }
     }
 }
