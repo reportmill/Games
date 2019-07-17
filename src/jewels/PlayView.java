@@ -1,5 +1,4 @@
 package jewels;
-import java.util.*;
 import snap.gfx.*;
 import snap.view.*;
 
@@ -130,6 +129,8 @@ void reloadGems()
     removeChildren();
     for(int i=0;i<GRID_WIDTH;i++) for(int j=0;j<GRID_HEIGHT;j++) _gems[i][j] = null;
     clearGems(0, 0, GRID_WIDTH-1, GRID_HEIGHT-1);
+    
+    checkAndClearMatches();
 }
 
 /**
@@ -181,8 +182,7 @@ protected void processEventTest(ViewEvent anEvent)
 
     // Handle MouseRelease
     else if(anEvent.isMouseRelease() && _pressGem!=null) {
-        ViewEvent mdwn = ViewUtils.getMouseDown().copyForView(this);
-        GridXY pnt0 = localToGrid(mdwn.getX(), mdwn.getY());
+        GridXY pnt0 = new GridXY(_pressGem.getCol(), _pressGem.getRow());
         GridXY pnt1 = localToGrid(anEvent.getX(), anEvent.getY());
         int col0 = Math.min(pnt0.x, pnt1.x), row0 = Math.min(pnt0.y, pnt1.y);
         int col1 = Math.max(pnt0.x, pnt1.x), row1 = Math.max(pnt0.y, pnt1.y);
@@ -223,12 +223,12 @@ public void swapGems(Gem aGem1, Gem aGem2, boolean isSwapBack)
     // Swap the two gems
     int col1 = aGem1.getCol(), row1 = aGem1.getRow();
     int col2 = aGem2.getCol(), row2 = aGem2.getRow();
-    setGemAnimated(aGem1, col2, row2, 0);
-    setGemAnimated(aGem2, col1, row1, 0);
+    setGemAnimated(aGem1, col2, row2, isSwapBack? 100 : 0);
+    setGemAnimated(aGem2, col1, row1, isSwapBack? 100 : 0);
     
     // If original swap, register for swap done
     if(!isSwapBack)
-        ViewUtils.runDelayed(() -> swapDone(aGem1, aGem2), GEM_SPEED + 100, true);
+        aGem2.getAnim(0).setOnFinish(a -> swapDone(aGem1, aGem2));
 }
 
 /**
@@ -240,30 +240,54 @@ void swapDone(Gem aGem1, Gem aGem2)
     Match m2 = getMatch(aGem2.getCol(), aGem2.getRow());
     if(m1==null && m2==null) {
         swapGems(aGem1, aGem2, true); return; }
+        
+    // Clear matches
+    if(m1!=null) clearMatch(m1);
+    if(m2!=null) clearMatch(m2);
 
     // Check and clear all matches
-    checkAndClearAllMatches();
+    checkAndClearAllMatchesLater();
 }
 
 /**
  * Checks for matches on all gems and clears them.
  */
-void checkAndClearAllMatches()
+void checkAndClearAllMatchesLater()
 {
-    for(int i=0;i<GRID_WIDTH;i++)
-        for(int j=0;j<GRID_HEIGHT;j++)
-            checkAndClearGemMatches(i, j);
+    ViewUtils.runDelayed(() -> checkAndClearMatches(), 300, true);
+}
+
+/**
+ * Checks for matches on all gems and clears them.
+ */
+void checkAndClearMatches()
+{
+    // Iterate over grid and check/clear any matches at each point
+    for(int i=0;i<GRID_WIDTH;i++) {
+        for(int j=0;j<GRID_HEIGHT;j++) {
+            boolean found = checkAndClearMatchAt(i, j);
+            if(found) {
+                checkAndClearAllMatchesLater(); return; }
+        }
+    }
 }
 
 /**
  * Checks for matches on given gem and clears them.
  */
-void checkAndClearGemMatches(int aCol, int aRow)
+boolean checkAndClearMatchAt(int aCol, int aRow)
 {
     // Get match at col/row (just return if null)
-    Match m = getMatch(aCol, aRow); if(m==null) return;
-    
-    // Clear gems for horizontal/vertical matches
+    Match m = getMatch(aCol, aRow); if(m==null) return false;
+    clearMatch(m);
+    return true;
+}
+
+/**
+ * Clear gems for match.
+ */
+void clearMatch(Match m)
+{
     if(m.dx>=2)
         clearGems(m.col0, m.row, m.col1, m.row);
     if(m.dy>=2)
@@ -321,6 +345,8 @@ static class GridXY {
  * A class to represent a match.
  */
 static class Match {
+    
+    // The match col/row and extents
     int col, row, col0, row0, col1, row1, dx, dy;
     
     /** Creates a Match for given col/row and extents. */
@@ -328,15 +354,6 @@ static class Match {
     {
         col = aCol; row = aRow; col0 = aCol0; row0 = aRow0; col1 = aCol1; row1 = aRow1;
         dx = col1 - col0; dy = row1 - row0;
-    }
-    
-    /** Returns points that make up the match. */
-    public GridXY[] getPoints()
-    {
-        List <GridXY> pnts = new ArrayList();
-        if(dx>=2) for(int i=col0;i<=col1;i++) pnts.add(new GridXY(i, row));
-        if(dy>=2) for(int i=row0;i<=row1;i++) pnts.add(new GridXY(col, i));
-        return pnts.toArray(new GridXY[pnts.size()]);
     }
 }
 
