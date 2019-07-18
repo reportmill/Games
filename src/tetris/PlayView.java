@@ -183,7 +183,7 @@ void removeRow(StackRow aRow)
 {
     // Cache row index, explode row and remove from Rows list
     int ind = _rows.indexOf(aRow);
-    Explode.explode(aRow, 0);
+    shared.Explode.explode(aRow, null, 20, 5, 0);
     _rows.remove(aRow);
     removeChild(aRow);
     
@@ -244,7 +244,7 @@ void gameOver()
     _gameOver = true;
     _timer.stop();
     for(int i=0;i<_rows.size();i++) { StackRow row = _rows.get(_rows.size()-i-1);
-        Explode.explode(row, i*150); }
+        shared.Explode.explode(row, null, 20, 5, i*150); }
 
     addBlockToRows();
     

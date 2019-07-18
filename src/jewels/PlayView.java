@@ -86,7 +86,7 @@ void setGemAnimated(Gem aGem, int aCol, int aRow, int aDelay)
     
     // If replacing with null, animate out and remove
     if(aGem==null) {
-        tetris.Explode.explode(oldGem, aDelay); return; }
+        shared.Explode.explode(oldGem, oldGem.getImage(), 8, 8, aDelay); return; }
     
     // Animate new gem into place
     double x1 = aGem.getX() + aGem.getTransX();
@@ -126,10 +126,12 @@ public GridXY localToGrid(double aX, double aY)
  */
 void reloadGems()
 {
+    // Remove gem views, null out grid gems (to suppress explosion) and clearGems (to reload)
     removeChildren();
     for(int i=0;i<GRID_WIDTH;i++) for(int j=0;j<GRID_HEIGHT;j++) _gems[i][j] = null;
     clearGems(0, 0, GRID_WIDTH-1, GRID_HEIGHT-1);
     
+    // Clear unintended matches
     checkAndClearAllMatchesLater(GEM_SPEED*(GRID_HEIGHT+2));
 }
 
@@ -138,9 +140,10 @@ void reloadGems()
  */
 void clearGems(int aCol0, int aRow0, int aCol1, int aRow1)
 {
+    int delay = ViewUtils.isAltDown()? 0 : 200;
     for(int i=aCol0;i<=aCol1;i++) {
         for(int j=aRow0;j<=aRow1;j++) {
-            setGemAnimated(null, i, j, 200); }
+            setGemAnimated(null, i, j, delay); }
         int delCount = aRow1 - aRow0 + 1;
         int len = aRow1 + 1;
         copyGems(i, -delCount, 0, len);
@@ -166,27 +169,9 @@ void copyGems(int aCol, int srcRow, int dstRow, int aLen)
     }
     
     // Set gems
+    int delay = ViewUtils.isAltDown()? 0 : 400;
     for(int i=0;i<aLen;i++) { Gem gem = gems[i];
-        setGemAnimated(gem, aCol, dstRow + i, 400);
-    }
-}
-
-/**
- * Handle events.
- */
-protected void processEventTest(ViewEvent anEvent)
-{
-    // Handle MouseDown
-    if(anEvent.isMousePress())
-        _pressGem = getGemAtXY(anEvent.getX(), anEvent.getY());
-
-    // Handle MouseRelease
-    else if(anEvent.isMouseRelease() && _pressGem!=null) {
-        GridXY pnt0 = new GridXY(_pressGem.getCol(), _pressGem.getRow());
-        GridXY pnt1 = localToGrid(anEvent.getX(), anEvent.getY());
-        int col0 = Math.min(pnt0.x, pnt1.x), row0 = Math.min(pnt0.y, pnt1.y);
-        int col1 = Math.max(pnt0.x, pnt1.x), row1 = Math.max(pnt0.y, pnt1.y);
-        clearGems(col0, row0, col1, row1);
+        setGemAnimated(gem, aCol, dstRow + i, delay);
     }
 }
 
@@ -199,6 +184,9 @@ protected void processEvent(ViewEvent anEvent)
     if(anEvent.isMousePress())
         _pressGem = getGemAtXY(anEvent.getX(), anEvent.getY());
 
+    // Handle alt events
+    else if(anEvent.isAltDown()) processEventAlt(anEvent);
+    
     // Handle MouseDrag
     else if(_pressGem!=null && anEvent.isMouseDrag()) {
         Size move = getDragChange(anEvent);
@@ -212,6 +200,21 @@ protected void processEvent(ViewEvent anEvent)
             swapGems(_pressGem, gem2, false);
             _pressGem = null;
         }
+    }
+}
+
+/**
+ * Testing method - just explodes selected gem range on MouseRelease.
+ */
+void processEventAlt(ViewEvent anEvent)
+{
+    // Handle MouseRelease
+    if(anEvent.isMouseRelease() && _pressGem!=null) {
+        GridXY pnt0 = new GridXY(_pressGem.getCol(), _pressGem.getRow());
+        GridXY pnt1 = localToGrid(anEvent.getX(), anEvent.getY());
+        int col0 = Math.min(pnt0.x, pnt1.x), row0 = Math.min(pnt0.y, pnt1.y);
+        int col1 = Math.max(pnt0.x, pnt1.x), row1 = Math.max(pnt0.y, pnt1.y);
+        clearGems(col0, row0, col1, row1);
     }
 }
 
