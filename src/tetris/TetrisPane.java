@@ -2,7 +2,7 @@ package tetris;
 import snap.view.*;
 
 /**
- * A custom class.
+ * The main UI controller for the game.
  */
 public class TetrisPane extends ViewOwner {
     

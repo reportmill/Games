@@ -242,7 +242,7 @@ void swapDone(Gem aGem1, Gem aGem2)
     Match m1 = getMatch(aGem1.getCol(), aGem1.getRow());
     Match m2 = getMatch(aGem2.getCol(), aGem2.getRow());
     if(m1==null && m2==null) {
-        swapGems(aGem1, aGem2, true); return; }
+        ViewUtils.runLater(() -> swapGems(aGem1, aGem2, true)); return; }
         
     // Clear matches
     if(m1!=null) clearMatch(m1);
