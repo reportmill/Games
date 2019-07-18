@@ -4,7 +4,7 @@
     <color value="#ffffff" />
   </ColView>
   <ColView MinWidth="200" Padding="4" GrowHeight="true" Spacing="4">
-    <Label LeanX="CENTER" text="Tetris">
+    <Label LeanX="CENTER" text="Snaptris">
       <font name="Arial" size="50" />
     </Label>
     <BoxView Name="NextBlockBox" PrefWidth="100" PrefHeight="100" Padding="4" GrowHeight="true" LeanX="CENTER" Spacing="4">
@@ -18,11 +18,11 @@
     <RowView MinWidth="0" Padding="9" GrowWidth="true" Spacing="4">
       <Button Name="DropButton" PrefWidth="60" PrefHeight="30" Padding="2" LeanX="CENTER" text="Drop" />
     </RowView>
-    <ColView Padding="15" LeanX="CENTER" LeanY="CENTER" Spacing="4">
+    <ColView Align="CENTER" Padding="15" LeanX="CENTER" LeanY="CENTER" Spacing="4">
       <BevelBorder />
       <Label text="Left  -  left arrow" />
       <Label text="Right  -  right arrow" />
-      <Label text="Rotate  -  space" />
+      <Label text="Rotate  - up arrow / space" />
       <Label text="Drop  -  down arrow" />
     </ColView>
     <RowView MinWidth="0" Padding="9" GrowWidth="true" LeanY="BOTTOM" Spacing="4">

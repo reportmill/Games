@@ -265,7 +265,7 @@ protected void processEvent(ViewEvent anEvent)
     if(anEvent.isLeftArrow()) moveLeft();
     else if(anEvent.isRightArrow()) moveRight();
     else if(anEvent.isDownArrow()) dropBlock();
-    else if(anEvent.getKeyString().equals(" ")) rotateBlock();
+    else if(anEvent.isUpArrow() || anEvent.getKeyString().equals(" ")) rotateBlock();
 }
 
 /**

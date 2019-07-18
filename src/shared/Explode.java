@@ -116,8 +116,8 @@ Frag getFrag(double aX, double aY, double dX, double dY)
 void animFrame()
 {
     int time = getAnim(0).getTime();
-    updateFrags(time);
-    repaint();
+    Rect rect = updateFrags(time);
+    repaint(rect);
 }
 
 /**
@@ -134,12 +134,24 @@ void animFinish()
 }
 
 /**
- * Updates frags.
+ * Updates frags and return repaint rect.
  */
-void updateFrags(double aTime)
+Rect updateFrags(double aTime)
 {
+    // Create vars to track repaint rect
+    double x0 = Float.MAX_VALUE, y0 = Float.MAX_VALUE, x1 = -x0, y1 = -y0;
+    
+    // Iterate over frags and update
     for(int i=0;i<_gw;i++) for(int j=0;j<_gh;j++) { Frag f = _frags[i][j];
-        updateFrag(f, aTime); }
+        updateFrag(f, aTime);
+        x0 = Math.min(x0, f.x - _vw);
+        y0 = Math.min(y0, f.y - _vh);
+        x1 = Math.max(x1, f.x + _vw);
+        y1 = Math.max(y1, f.y + _vh);
+    }
+    
+    // Return repaint rect
+    return new Rect(x0, y0, x1 - x0, y1 - y0);
 }
 
 /**
