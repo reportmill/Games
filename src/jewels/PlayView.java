@@ -27,7 +27,7 @@ public PlayView()
 {
     // Set background texture
     Image img = Image.get(PlayView.class, "pkg.images/Cloth.jpg");
-    img.addLoadListener(pc -> setFill(new ImagePaint(img, BORDER_SIZE, BORDER_SIZE, 64, 64, false)));
+    img.addLoadListener(() -> setFill(new ImagePaint(img, BORDER_SIZE, BORDER_SIZE, 64, 64, false)));
     
     // Set PlayView fill, border, PrefSize
     setBorder(Color.BLACK, 2);
